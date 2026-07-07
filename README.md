@@ -1,1 +1,1 @@
-the name is self-explainable. 
+This is customized for Canal Walk Canasta Rules
