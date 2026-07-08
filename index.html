@@ -1,0 +1,2567 @@
+<!-- This is a comment -->
+<!-- This version fixed a bug on history display of negative -->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Canasta Score Keeper</title>
+
+
+<style>
+
+
+*{
+box-sizing:border-box;
+font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
+}
+
+
+body{
+
+margin:0;
+background:#f2f2f7;
+
+}
+
+
+.app{
+
+max-width:430px;
+margin:auto;
+background:white;
+min-height:100vh;
+
+}
+
+
+
+header{
+
+background:#1f2937;
+color:white;
+
+display:flex;
+justify-content:space-between;
+align-items:center;
+
+padding:12px;
+
+}
+
+
+header button{
+
+background:none;
+border:none;
+color:white;
+
+font-size:26px;
+
+}
+
+
+.title{
+
+font-size:20px;
+font-weight:bold;
+
+}
+
+
+
+.card{
+
+margin:10px;
+
+padding:12px;
+
+border-radius:12px;
+
+background:white;
+
+box-shadow:0 2px 6px #ccc;
+
+}
+
+
+
+.section-title{
+
+font-weight:bold;
+font-size:18px;
+
+margin-bottom:10px;
+
+}
+
+
+
+.team-row{
+
+display:flex;
+gap:10px;
+
+}
+
+
+
+.team{
+
+flex:1;
+text-align:center;
+
+}
+
+
+
+.total{
+
+font-size:28px;
+font-weight:bold;
+
+}
+
+
+
+/* table points */
+
+input.scoreInput{
+
+width:100%;
+
+font-size:22px;
+
+padding:8px;
+
+text-align:center;
+
+border-radius:8px;
+
+border:1px solid #aaa;
+
+}
+
+
+
+/* remove number spinner */
+
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button{
+
+-webkit-appearance:none;
+margin:0;
+
+}
+
+
+
+
+select{
+
+width:100%;
+
+padding:8px;
+
+font-size:18px;
+
+border-radius:8px;
+
+}
+
+
+
+.counter{
+
+display:flex;
+
+justify-content:center;
+
+align-items:center;
+
+gap:15px;
+
+}
+
+
+
+.counter button{
+
+width:42px;
+
+height:38px;
+
+font-size:24px;
+
+border-radius:10px;
+
+border:none;
+
+}
+
+
+
+.count{
+
+font-size:24px;
+
+}
+
+
+
+.red-label{
+
+color:#b00000;
+font-weight:bold;
+
+}
+
+
+
+.black-label{
+
+color:black;
+font-weight:bold;
+
+}
+
+
+
+.main-button{
+
+width:100%;
+
+padding:15px;
+
+font-size:20px;
+
+background:#2563eb;
+
+color:white;
+
+border:none;
+
+border-radius:12px;
+
+font-weight:bold;
+
+}
+
+
+
+
+
+/******** MENU ********/
+
+
+.screen{
+
+display:none;
+
+position:fixed;
+
+top:0;
+left:0;
+
+width:100%;
+height:100%;
+
+background:white;
+
+z-index:20;
+
+overflow:auto;
+
+}
+
+
+
+.screen-header{
+
+background:#1f2937;
+
+color:white;
+
+padding:15px;
+
+font-size:22px;
+
+}
+
+
+
+.menu-button{
+
+width:90%;
+
+margin:10px 5%;
+
+padding:15px;
+
+font-size:18px;
+
+border-radius:10px;
+
+background:white;
+
+border:1px solid #ccc;
+
+}
+
+
+
+.danger{
+
+color:red;
+
+font-weight:bold;
+
+}
+
+
+
+
+
+/******** MODALS ********/
+
+
+.modal{
+
+display:none;
+
+position:fixed;
+
+top:0;
+left:0;
+
+width:100%;
+height:100%;
+
+background:rgba(0,0,0,.5);
+
+z-index:30;
+
+align-items:center;
+
+justify-content:center;
+
+}
+
+
+
+.modal-box{
+
+background:white;
+
+padding:20px;
+
+width:90%;
+
+border-radius:15px;
+
+text-align:center;
+
+}
+
+
+
+.hold-button{
+
+width:100%;
+
+padding:18px;
+
+background:red;
+
+color:white;
+
+border:none;
+
+border-radius:12px;
+
+font-size:18px;
+
+}
+
+
+
+
+
+/******** WINNER ********/
+
+
+#winnerScreen{
+
+display:none;
+
+position:fixed;
+
+top:0;
+left:0;
+
+width:100%;
+height:100%;
+
+background:white;
+
+z-index:40;
+
+text-align:center;
+
+padding-top:80px;
+
+}
+
+
+
+#winnerScreen h1{
+
+font-size:40px;
+
+}
+
+
+
+</style>
+
+
+</head>
+
+
+
+<body>
+
+
+
+<div class="app">
+
+
+<header>
+
+
+<button onclick="openMenu()">
+
+☰
+
+</button>
+
+
+<div class="title">
+
+CANASTA
+
+</div>
+
+
+<div>
+
+Rnd <span id="roundNumber">1</span>
+
+</div>
+
+
+</header>
+
+
+
+
+<div class="card">
+
+
+<div class="section-title">
+
+Game Total
+
+</div>
+
+
+
+<div class="team-row">
+
+
+<div class="team">
+
+<h3>
+Team A
+</h3>
+
+
+<div class="total" id="totalA">
+
+0
+
+</div>
+
+
+</div>
+
+
+
+
+<div class="team">
+
+
+<h3>
+Team B
+</h3>
+
+
+<div class="total" id="totalB">
+
+0
+
+</div>
+
+
+</div>
+
+
+
+</div>
+
+
+</div>
+
+
+
+
+
+<!-- SCORE ENTRY WILL BE GENERATED IN PART 2 -->
+
+
+<div id="scoreEntry">
+
+
+</div>
+
+
+
+</div>
+
+
+
+
+
+
+<!-- MENU SCREEN -->
+
+
+<div class="screen" id="menuScreen">
+
+
+<div class="screen-header">
+
+Menu
+
+</div>
+
+
+
+<button class="menu-button"
+onclick="showHistory()">
+
+📋 View Game History
+
+</button>
+
+
+
+<button class="menu-button"
+onclick="editLastRound()">
+
+✏ Edit Last Round
+
+</button>
+
+
+
+<button class="menu-button"
+onclick="deleteLastRound()">
+
+↩ Delete Last Round
+
+</button>
+
+
+
+<button class="menu-button">
+
+⚙ Settings
+
+</button>
+
+
+
+<button class="menu-button danger"
+onclick="openNewGame()">
+
+⚠ New Game
+
+</button>
+
+
+
+
+<button class="menu-button"
+onclick="closeMenu()">
+
+Return
+
+</button>
+
+
+
+</div>
+
+
+
+
+
+<!-- HISTORY SCREEN -->
+
+
+<div class="screen" id="historyScreen">
+
+
+<div class="screen-header">
+
+Game History
+
+</div>
+
+
+
+<div id="historyContent">
+
+</div>
+
+
+
+<button class="menu-button"
+onclick="closeHistory()">
+
+Return
+
+</button>
+
+
+</div>
+
+
+
+
+
+<!-- DELETE CONFIRM -->
+
+
+<div class="modal" id="deleteModal">
+
+
+<div class="modal-box">
+
+
+<h2>
+
+Delete Last Round?
+
+</h2>
+
+
+<p>
+
+This will remove the most recent round.
+
+</p>
+
+
+
+<button onclick="confirmDelete()">
+
+Delete
+
+</button>
+
+
+<button onclick="closeDelete()">
+
+Cancel
+
+</button>
+
+
+</div>
+
+
+</div>
+
+
+
+
+
+
+<!-- NEW GAME -->
+
+
+<div class="modal" id="newGameModal">
+
+
+<div class="modal-box">
+
+
+<h2>
+Start New Game?
+</h2>
+
+
+<p>
+
+⚠ Warning:
+<br><br>
+
+All game history will be deleted.
+<br>
+
+This cannot be undone.
+
+</p>
+
+
+
+<button class="main-button"
+onclick="confirmNewGame()">
+
+Delete History & Start New Game
+
+</button>
+
+
+<br><br>
+
+
+<button onclick="closeNewGame()">
+
+Cancel
+
+</button>
+
+
+
+</div>
+
+
+</div>
+
+
+
+
+<!-- WINNER -->
+
+
+<div id="winnerScreen">
+
+
+<h1>
+
+🏆
+
+</h1>
+
+
+<h1 id="winnerText">
+
+</h1>
+
+
+<h2 id="winnerScore">
+
+</h2>
+
+
+<button class="main-button"
+onclick="openMenuFromWinner()">
+
+Menu
+
+</button>
+
+
+</div>
+
+
+
+
+
+<script>
+
+// DEBUG
+
+function openMenu(){
+
+    document.getElementById("menuScreen").style.display="block";
+
+}
+
+
+function closeMenu(){
+
+    document.getElementById("menuScreen").style.display="none";
+
+}
+
+// Part 2 and Part 3 go here
+
+
+/************************************
+ * PART 2 - SCORE ENGINE
+ ************************************/
+
+
+const threeValues = [0,100,300,500,1000];
+
+
+const specialValues = {
+
+    "7's":2500,
+    "Natural Aces":2500,
+    "Mixed Wild Card":2000,
+    "All Deuces":3000,
+    "4 Jokers":2500,
+    "Pairs":2500,
+    "Junk Hand":2500
+
+};
+
+
+
+let roundData = {
+
+    A:{
+        threeMode:"positive",
+        specials:[]
+    },
+
+    B:{
+        threeMode:"positive",
+        specials:[]
+    }
+
+};
+
+
+
+/************************************
+ CREATE SCORE AREA
+ ************************************/
+
+
+function buildScoreUI(){
+
+
+let html = `
+
+
+<div class="card">
+
+<div class="section-title">
+Table Points
+</div>
+
+
+<div class="team-row">
+
+
+<div class="team">
+
+<h3>Team A</h3>
+
+<input 
+class="scoreInput"
+id="tableA"
+type="text"
+inputmode="text"
+value="0"
+oninput="updateScore()">
+
+</div>
+
+
+
+<div class="team">
+
+<h3>Team B</h3>
+
+<input 
+class="scoreInput"
+id="tableB"
+type="text"
+inputmode="text"
+value="0"
+oninput="updateScore()">
+
+</div>
+
+
+</div>
+
+</div>
+
+
+
+
+
+<div class="card">
+
+<div class="section-title red-label">
+Natural Canasta
+</div>
+
+
+<div class="team-row">
+
+
+${counterHTML("natural","A")}
+
+${counterHTML("natural","B")}
+
+
+</div>
+
+
+</div>
+
+
+
+
+
+<div class="card">
+
+<div class="section-title black-label">
+Mixed Canasta
+</div>
+
+
+<div class="team-row">
+
+
+${counterHTML("mixed","A")}
+
+${counterHTML("mixed","B")}
+
+
+</div>
+
+
+</div>
+
+
+
+
+
+
+<div class="card">
+
+
+<div class="section-title">
+3s Scoring
+</div>
+
+
+
+
+<div class="team-row">
+
+
+${threeSection("A")}
+
+${threeSection("B")}
+
+
+</div>
+
+
+
+</div>
+
+
+
+
+
+
+
+<div class="card">
+
+
+<div class="section-title">
+Special Hands
+</div>
+
+
+<div class="team-row">
+
+
+<div class="team">
+
+<h3>Team A</h3>
+
+${specialSelect("A")}
+
+<div id="specialListA"></div>
+
+
+</div>
+
+
+
+<div class="team">
+
+<h3>Team B</h3>
+
+${specialSelect("B")}
+
+<div id="specialListB"></div>
+
+
+</div>
+
+
+</div>
+
+
+</div>
+
+
+
+
+
+
+
+<div class="card">
+
+
+<div class="section-title">
+Extra Points
+</div>
+
+
+
+<div class="team-row">
+
+
+<div class="team">
+
+<label>
+
+<input type="checkbox"
+id="goingA"
+onchange="updateScore()">
+
+Going Out
+
+</label>
+
+
+<br>
+
+
+<label>
+
+<input type="checkbox"
+id="talonA"
+onchange="updateScore()">
+
+Talon Cut
+
+</label>
+
+
+</div>
+
+
+
+
+
+<div class="team">
+
+
+<label>
+
+<input type="checkbox"
+id="goingB"
+onchange="updateScore()">
+
+Going Out
+
+</label>
+
+
+<br>
+
+
+<label>
+
+<input type="checkbox"
+id="talonB"
+onchange="updateScore()">
+
+Talon Cut
+
+</label>
+
+
+</div>
+
+
+</div>
+
+
+</div>
+
+
+
+
+
+
+
+<div class="card">
+
+
+<div class="section-title">
+
+Current Round
+
+</div>
+
+
+<div class="team-row">
+
+
+<div class="team">
+
+<h2 id="roundA">
+0
+</h2>
+
+</div>
+
+
+<div class="team">
+
+<h2 id="roundB">
+0
+</h2>
+
+
+</div>
+
+
+</div>
+
+
+</div>
+
+
+
+
+
+<div class="card">
+
+<button class="main-button"
+onclick="saveRound()">
+
+Save Round
+
+</button>
+
+</div>
+
+
+
+`;
+
+
+document.getElementById("scoreEntry").innerHTML=html;
+
+
+}
+
+
+
+
+
+/************************************
+ COUNTER BUTTONS
+ ************************************/
+
+
+function counterHTML(type,team){
+
+return `
+
+<div class="team">
+
+
+<div class="counter">
+
+
+<button onclick="changeCounter('${type}','${team}',-1)">
+−
+</button>
+
+
+<span>
+
+<span class="count" id="${type}${team}">
+0
+</span>
+
+<br>
+
+<span id="${type}${team}Score">
+Score: 0
+</span>
+
+</span>
+
+<button onclick="changeCounter('${type}','${team}',1)">
++
+</button>
+
+
+</div>
+
+
+</div>
+
+`;
+
+}
+
+
+
+
+
+function changeCounter(type,team,value){
+
+
+let el=document.getElementById(type+team);
+
+
+let count=parseInt(el.innerHTML);
+
+
+count+=value;
+
+
+if(count<0)
+count=0;
+
+
+if(count>4 && 
+(type==="black3" || type==="red3"))
+count=4;
+
+
+
+el.innerHTML=count;
+
+
+updateCounterScore(type,team);
+
+
+updateScore();
+
+
+}
+
+
+function updateCounterScore(type, team){
+
+    const count = Number(
+        document.getElementById(type + team).innerHTML
+    );
+
+    let score = 0;
+
+    switch(type){
+
+        case "natural":
+            score = count * 500;
+            break;
+
+        case "mixed":
+            score = count * 300;
+            break;
+
+        case "black3":
+        case "red3":
+            const sign =
+                roundData[team].threeMode === "negative"
+                ? -1
+                : 1;
+
+            score = sign * threeValues[count];
+            break;
+
+        default:
+            return;
+    }
+
+    document.getElementById(type + team + "Score").innerHTML =
+        "Score: " + score;
+}
+
+
+
+/************************************
+ 3s SECTION
+ ************************************/
+
+
+function threeSection(team){
+
+
+return `
+
+
+<div class="team">
+
+
+<h3>
+Team ${team}
+</h3>
+
+
+<select id="threeMode${team}"
+onchange="changeThreeMode('${team}')">
+
+
+<option value="positive">
+Positive
+</option>
+
+
+<option value="negative">
+Negative
+</option>
+
+
+</select>
+
+
+
+<h4>
+Black 3s
+</h4>
+
+
+${counterHTML("black3",team)}
+
+
+<h4 class="red-label">
+Red 3s
+</h4>
+
+
+${counterHTML("red3",team)}
+
+
+
+</div>
+
+
+`;
+
+}
+
+
+
+
+function changeThreeMode(team){
+
+
+roundData[team].threeMode =
+
+document.getElementById(
+"threeMode"+team
+).value;
+
+
+updateScore();
+
+
+}
+
+
+
+
+
+/************************************
+ SPECIAL HANDS
+ ************************************/
+
+
+function specialSelect(team){
+
+
+return `
+
+
+<select id="specialSelect${team}"
+onchange="addSpecial('${team}')">
+
+
+<option>
+Add Special Hand
+</option>
+
+
+${
+Object.keys(specialValues)
+.map(x=>`<option>${x}</option>`)
+.join("")
+}
+
+
+</select>
+
+
+`;
+
+}
+
+
+
+
+
+function addSpecial(team){
+
+
+let select=document.getElementById(
+"specialSelect"+team
+);
+
+
+let value=select.value;
+
+
+if(value==="Add Special Hand")
+return;
+
+
+
+if(roundData[team].specials.includes(value)){
+
+alert("Duplicate special hand not allowed.");
+
+select.value="Add Special Hand";
+
+return;
+
+}
+
+
+
+roundData[team].specials.push(value);
+
+
+select.value="Add Special Hand";
+
+
+renderSpecials(team);
+
+
+updateScore();
+
+
+}
+
+
+
+
+
+function renderSpecials(team){
+
+
+let box=document.getElementById(
+"specialList"+team
+);
+
+
+box.innerHTML="";
+
+
+roundData[team].specials.forEach(
+(item,index)=>{
+
+
+box.innerHTML +=
+
+`
+
+<div class="special-item">
+
+${item}
+
+${specialValues[item]}
+
+
+<button onclick="removeSpecial('${team}',${index})">
+✕
+</button>
+
+
+</div>
+
+`;
+
+});
+
+
+}
+
+
+
+
+function removeSpecial(team,index){
+
+
+roundData[team].specials.splice(index,1);
+
+
+renderSpecials(team);
+
+
+updateScore();
+
+
+}
+
+
+
+
+
+/************************************
+ CALCULATION
+ ************************************/
+
+
+function calculateTeam(team){
+
+
+let total=0;
+
+
+
+total += Number(
+document.getElementById("table"+team).value
+)||0;
+
+
+
+total +=
+Number(document.getElementById("natural"+team).innerHTML)
+*500;
+
+
+
+total +=
+Number(document.getElementById("mixed"+team).innerHTML)
+*300;
+
+
+
+
+let sign =
+roundData[team].threeMode==="negative"
+?-1
+:1;
+
+
+
+total +=
+threeValues[
+Number(document.getElementById("black3"+team).innerHTML)
+]
+*sign;
+
+
+
+total +=
+threeValues[
+Number(document.getElementById("red3"+team).innerHTML)
+]
+*sign;
+
+
+
+
+roundData[team].specials.forEach(item=>{
+
+total += specialValues[item];
+
+});
+
+
+
+if(document.getElementById("going"+team).checked)
+total+=100;
+
+
+
+if(document.getElementById("talon"+team).checked)
+total+=100;
+
+
+
+return total;
+
+
+}
+
+
+
+
+
+
+function updateScore(){
+
+
+if(!document.getElementById("roundA"))
+return;
+
+
+document.getElementById("roundA").innerHTML=
+calculateTeam("A");
+
+
+document.getElementById("roundB").innerHTML=
+calculateTeam("B");
+
+
+}
+
+
+
+
+/************************************
+ START PART 2
+ ************************************/
+
+
+window.onload=function(){
+
+buildScoreUI();
+
+};
+
+
+
+/************************************
+ * PART 3 - GAME MANAGEMENT
+ ************************************/
+
+
+let game = JSON.parse(
+    localStorage.getItem("canastaGame")
+) || {
+
+    round:1,
+
+    totals:{
+        A:0,
+        B:0
+    },
+
+    history:[],
+
+    lastRound:null
+
+};
+
+
+
+let editing=false;
+
+
+
+
+/************************************
+ DISPLAY TOTALS
+ ************************************/
+
+
+function updateTotals(){
+
+
+document.getElementById("totalA").innerHTML =
+game.totals.A;
+
+
+document.getElementById("totalB").innerHTML =
+game.totals.B;
+
+
+document.getElementById("roundNumber").innerHTML =
+game.round;
+
+
+}
+
+
+
+function saveGame(){
+
+localStorage.setItem(
+"canastaGame",
+JSON.stringify(game)
+);
+
+}
+
+
+function captureRoundData(){
+
+    return {
+
+        A:{
+
+            table:
+            Number(document.getElementById("tableA").value)||0,
+
+            natural:
+            Number(document.getElementById("naturalA").innerHTML)||0,
+
+            mixed:
+            Number(document.getElementById("mixedA").innerHTML)||0,
+
+            black3:
+            Number(document.getElementById("black3A").innerHTML)||0,
+
+            red3:
+            Number(document.getElementById("red3A").innerHTML)||0,
+
+            threeMode:
+            document.getElementById("threeModeA").value,
+
+            specials:
+            [...roundData.A.specials],
+
+            goingOut:
+            document.getElementById("goingA").checked,
+
+            talon:
+            document.getElementById("talonA").checked
+
+        },
+
+
+        B:{
+
+            table:
+            Number(document.getElementById("tableB").value)||0,
+
+            natural:
+            Number(document.getElementById("naturalB").innerHTML)||0,
+
+            mixed:
+            Number(document.getElementById("mixedB").innerHTML)||0,
+
+            black3:
+            Number(document.getElementById("black3B").innerHTML)||0,
+
+            red3:
+            Number(document.getElementById("red3B").innerHTML)||0,
+
+            threeMode:
+            document.getElementById("threeModeB").value,
+
+            specials:
+            [...roundData.B.specials],
+
+            goingOut:
+            document.getElementById("goingB").checked,
+
+            talon:
+            document.getElementById("talonB").checked
+
+        }
+
+    };
+
+}
+
+
+/************************************
+ SAVE ROUND
+ ************************************/
+
+
+function saveRound(){
+
+
+let roundNumber;
+
+
+if(editing){
+
+    roundNumber =
+    game.history[
+        game.history.length-1
+    ].number;
+
+}
+else{
+
+    roundNumber =
+    game.round;
+
+}
+
+
+
+let round={
+
+
+number:roundNumber,
+
+
+A:calculateTeam("A"),
+
+
+B:calculateTeam("B"),
+
+
+details:captureRoundData()
+
+
+};
+
+
+
+if(editing){
+
+
+game.history[
+game.history.length-1
+]=round;
+
+
+editing=false;
+
+
+game.totals.A=0;
+game.totals.B=0;
+
+
+game.history.forEach(r=>{
+
+game.totals.A+=r.A;
+game.totals.B+=r.B;
+
+});
+
+
+}
+
+else{
+
+
+game.history.push(round);
+
+
+game.totals.A+=round.A;
+
+game.totals.B+=round.B;
+
+
+game.round++;
+
+
+}
+
+
+
+
+game.lastRound=round;
+
+
+
+saveGame();
+
+
+updateTotals();
+
+
+checkWinner();
+
+
+resetRound();
+
+
+
+}
+
+
+
+
+
+
+
+/************************************
+ RESET ROUND ENTRY
+ ************************************/
+
+
+function resetRound(){
+
+
+roundData={
+
+A:{
+threeMode:"positive",
+specials:[]
+},
+
+B:{
+threeMode:"positive",
+specials:[]
+}
+
+};
+
+
+buildScoreUI();
+
+
+}
+
+
+
+
+
+/************************************
+ HISTORY SCREEN
+ ************************************/
+
+
+function showHistory(){
+
+
+closeMenu();
+
+
+let box=document.getElementById(
+"historyContent"
+);
+
+
+box.innerHTML="";
+
+
+
+game.history.forEach(r=>{
+
+
+box.innerHTML += `
+
+<div class="card">
+
+<h3>
+Round ${r.number}
+</h3>
+
+
+<h4>
+Team A
+</h4>
+
+${historyDetails(r.details.A)}
+
+
+<hr>
+
+
+<h4>
+Team B
+</h4>
+
+${historyDetails(r.details.B)}
+
+
+</div>
+
+`;
+
+});
+
+
+
+box.innerHTML += `
+
+<div class="card">
+
+<h3>
+Current Total
+</h3>
+
+Team A: ${game.totals.A}
+
+<br>
+
+Team B: ${game.totals.B}
+
+
+</div>
+
+`;
+
+
+
+document.getElementById(
+"historyScreen"
+).style.display="block";
+
+
+}
+
+function historyDetails(t){
+
+
+let text="";
+
+
+text +=
+`Table Points: ${t.table}<br>`;
+
+
+
+if(t.natural)
+
+text +=
+`Natural Canasta: ${t.natural} × 500 = ${t.natural*500}<br>`;
+
+
+
+if(t.mixed)
+
+text +=
+`Mixed Canasta: ${t.mixed} × 300 = ${t.mixed*300}<br>`;
+
+
+let threeSign =
+t.threeMode==="negative"
+?-1
+:1;
+
+
+
+if(t.black3)
+
+text +=
+`Black 3s: ${t.black3} = ${threeSign * threeValues[t.black3]}<br>`;
+
+
+
+if(t.red3)
+
+text +=
+`Red 3s: ${t.red3} = ${threeSign * threeValues[t.red3]}<br>`;
+
+t.specials.forEach(s=>{
+
+text +=
+`${s}: ${specialValues[s]}<br>`;
+
+});
+
+
+
+if(t.goingOut)
+
+text +=
+`Going Out: +100<br>`;
+
+
+
+if(t.talon)
+
+text +=
+`Talon Cut: +100<br>`;
+
+
+
+return text;
+
+
+}
+
+
+function closeHistory(){
+
+document.getElementById(
+"historyScreen"
+).style.display="none";
+
+}
+
+
+
+
+
+/************************************
+ EDIT LAST ROUND
+ ************************************/
+
+
+function editLastRound(){
+
+
+closeMenu();
+
+
+if(game.history.length===0){
+
+alert("No rounds available.");
+
+return;
+
+}
+
+
+
+editing=true;
+
+
+let r=
+game.history[
+game.history.length-1
+];
+
+
+
+restoreRound(r.details);
+
+
+
+}
+
+
+
+
+function restoreRound(data){
+
+    roundData=data;
+
+
+    buildScoreUI();
+
+
+    document.getElementById("tableA").value =
+    data.A.table;
+
+
+    document.getElementById("tableB").value =
+    data.B.table;
+
+
+
+    document.getElementById("naturalA").innerHTML =
+    data.A.natural;
+
+
+    document.getElementById("naturalB").innerHTML =
+    data.B.natural;
+
+
+
+    document.getElementById("mixedA").innerHTML =
+    data.A.mixed;
+
+
+    document.getElementById("mixedB").innerHTML =
+    data.B.mixed;
+
+
+
+    document.getElementById("black3A").innerHTML =
+    data.A.black3;
+
+
+    document.getElementById("black3B").innerHTML =
+    data.B.black3;
+
+
+
+    document.getElementById("red3A").innerHTML =
+    data.A.red3;
+
+
+    document.getElementById("red3B").innerHTML =
+    data.B.red3;
+
+
+
+    document.getElementById("threeModeA").value =
+    data.A.threeMode;
+
+
+    document.getElementById("threeModeB").value =
+    data.B.threeMode;
+
+
+
+    document.getElementById("goingA").checked =
+    data.A.goingOut;
+
+
+    document.getElementById("goingB").checked =
+    data.B.goingOut;
+
+
+
+    document.getElementById("talonA").checked =
+    data.A.talon;
+
+
+    document.getElementById("talonB").checked =
+    data.B.talon;
+
+
+
+    renderSpecials("A");
+
+    renderSpecials("B");
+
+
+    updateScore();
+
+}
+
+
+
+
+
+
+/************************************
+ DELETE LAST ROUND
+ ************************************/
+
+
+function deleteLastRound(){
+
+
+closeMenu();
+
+
+
+if(game.history.length===0){
+
+alert("No rounds available.");
+
+return;
+
+}
+
+
+
+document.getElementById(
+"deleteModal"
+).style.display="flex";
+
+
+}
+
+
+
+
+function closeDelete(){
+
+document.getElementById(
+"deleteModal"
+).style.display="none";
+
+
+}
+
+
+
+
+function confirmDelete(){
+
+
+let r =
+game.history.pop();
+
+
+
+game.totals.A-=r.A;
+
+game.totals.B-=r.B;
+
+
+
+game.round =
+game.history.length+1;
+
+
+
+game.lastRound =
+game.history[
+game.history.length-1
+] || null;
+
+
+
+saveGame();
+
+
+updateTotals();
+
+
+
+closeDelete();
+
+
+}
+
+
+
+
+
+
+/************************************
+ MENU
+ ************************************/
+
+
+// openMenu and closeMenu already exist
+
+
+
+
+/************************************
+ NEW GAME
+ ************************************/
+
+
+function openNewGame(){
+
+
+document.getElementById(
+"newGameModal"
+).style.display="flex";
+
+
+}
+
+
+
+function closeNewGame(){
+
+
+document.getElementById(
+"newGameModal"
+).style.display="none";
+
+
+}
+
+
+
+let holdTimer;
+
+
+
+function startHold(){
+
+
+holdTimer=setTimeout(()=>{
+
+
+newGame();
+
+
+},3000);
+
+
+}
+
+
+
+function cancelHold(){
+
+clearTimeout(holdTimer);
+
+}
+
+
+
+
+
+let holdButton =
+document.getElementById(
+"holdButton"
+);
+
+
+
+holdButton.addEventListener(
+"mousedown",
+startHold
+);
+
+
+holdButton.addEventListener(
+"mouseup",
+cancelHold
+);
+
+
+holdButton.addEventListener(
+"touchstart",
+startHold
+);
+
+
+holdButton.addEventListener(
+"touchend",
+cancelHold
+);
+
+
+
+
+
+
+
+function confirmNewGame(){
+
+
+localStorage.removeItem(
+"canastaGame"
+);
+
+
+location.reload();
+
+
+}
+
+
+
+
+/************************************
+ WINNER
+ ************************************/
+
+
+function checkWinner(){
+
+
+let winner="";
+
+
+
+if(game.totals.A>=8500 &&
+game.totals.B>=8500){
+
+
+winner =
+game.totals.A>=game.totals.B
+?
+"TEAM A WINS!"
+:
+"TEAM B WINS!";
+
+
+}
+
+
+else if(game.totals.A>=8500){
+
+
+winner="TEAM A WINS!";
+
+}
+
+
+else if(game.totals.B>=8500){
+
+
+winner="TEAM B WINS!";
+
+}
+
+
+
+if(winner){
+
+
+document.getElementById(
+"winnerText"
+).innerHTML=winner;
+
+
+document.getElementById(
+"winnerScore"
+).innerHTML=
+
+`
+Team A: ${game.totals.A}
+<br>
+Team B: ${game.totals.B}
+`;
+
+
+
+document.getElementById(
+"winnerScreen"
+).style.display="block";
+
+
+}
+
+
+}
+
+function openMenuFromWinner(){
+
+    document.getElementById(
+        "winnerScreen"
+    ).style.display="none";
+
+
+    openMenu();
+
+}
+
+
+/************************************
+ INITIAL LOAD
+ ************************************/
+
+
+window.addEventListener(
+"load",
+()=>{
+
+updateTotals();
+
+}
+);
+
+
+
+// Part 2 and Part 3 end here
+
+</script>
+
+
+
+</body>
+
+</html>
