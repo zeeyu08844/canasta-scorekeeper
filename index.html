@@ -99,7 +99,14 @@ margin-bottom:10px;
 
 }
 
+.team-header{
 
+    margin:10px;
+    padding:0 12px 10px 12px;
+
+    border-bottom:2px solid #ccc;
+
+}
 
 .team-row{
 
@@ -448,7 +455,7 @@ font-size:40px;
 
 <div class="title">
 
-CW CANASTA
+1CW CANASTA
 
 </div>
 
@@ -843,7 +850,6 @@ function buildScoreUI(){
 let html = `
 
 
-<div class="card">
 
 
 <div class="team-row">
@@ -857,6 +863,9 @@ let html = `
     </div>
 
 </div>
+
+
+<div class="card">
 
 <div class="section-title">
 Table Points
@@ -1529,18 +1538,54 @@ updateScore();
  CALCULATION
  ************************************/
 
+/* new function to make table A and B table points entry acct like a calculator */ 
+function getTablePoints(team){
+
+    const input = document.getElementById("table" + team);
+
+    let text = input.value.replace(/\s+/g,"");
+
+    if(text===""){
+        input.style.borderColor="#aaa";
+        return 0;
+    }
+
+    // Only digits, + and -
+    if(!/^[0-9+\-]+$/.test(text)){
+        input.style.borderColor="red";
+        return null;
+    }
+
+    // Must not end with + or -
+    if(/[+\-]$/.test(text)){
+        input.style.borderColor="red";
+        return null;
+    }
+
+    const numbers = text.match(/[+\-]?\d+/g);
+
+    if(!numbers){
+        input.style.borderColor="red";
+        return null;
+    }
+
+    input.style.borderColor="#aaa";
+
+    return numbers.reduce((sum,n)=>sum+Number(n),0);
+
+}
 
 function calculateTeam(team){
 
 
 let total=0;
 
+let tablePoints = getTablePoints(team);
 
+if(tablePoints===null)
+return null;
 
-total += Number(
-document.getElementById("table"+team).value
-)||0;
-
+total += tablePoints;
 
 
 total +=
@@ -1604,24 +1649,19 @@ return total;
 }
 
 
-
-
-
-
 function updateScore(){
 
+    if(!document.getElementById("roundA"))
+        return;
 
-if(!document.getElementById("roundA"))
-return;
+    const scoreA = calculateTeam("A");
+    const scoreB = calculateTeam("B");
 
+    document.getElementById("roundA").innerHTML =
+        scoreA===null ? "Invalid" : scoreA;
 
-document.getElementById("roundA").innerHTML=
-calculateTeam("A");
-
-
-document.getElementById("roundB").innerHTML=
-calculateTeam("B");
-
+    document.getElementById("roundB").innerHTML =
+        scoreB===null ? "Invalid" : scoreB;
 
 }
 
@@ -1783,6 +1823,13 @@ function captureRoundData(){
 
 function saveRound(){
 
+if(calculateTeam("A")===null ||
+   calculateTeam("B")===null){
+
+    alert("Please correct the table points.");
+
+    return;
+}
 
 let roundNumber;
 
